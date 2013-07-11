@@ -93,7 +93,8 @@ if __name__ == '__main__':
     mmd2u_null = compute_null_distribution(K, m, n, iterations)
 
     plt.figure()
-    plt.hist(mmd2u_null, bins=50, normed=True)
+    prob, bins, patches = plt.hist(mmd2u_null, bins=50, normed=True)
+    plt.plot(mmd2u, prob.max()/30, 'w*', markersize=24, markeredgecolor='k', markeredgewidth=2)
 
     p_value = max(1.0/iterations, (mmd2u_null > mmd2u).sum() / float(iterations))
 
