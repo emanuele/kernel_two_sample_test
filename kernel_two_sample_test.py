@@ -1,5 +1,6 @@
 from __future__ import division
 import numpy as np
+from sys import stdout
 
 
 def MMD2u(K, m, n):
@@ -51,6 +52,7 @@ if __name__ == '__main__':
 
     import matplotlib.pyplot as plt
     from sys import stdout
+    from sklearn.metrics import pairwise_distances
 
     np.random.seed(0)
 
@@ -76,7 +78,11 @@ if __name__ == '__main__':
         plt.plot(Y[:,0], Y[:,1], 'rx')
 
     XY = np.vstack([X, Y])
-    K = np.dot(XY, XY.T)
+    # K = np.dot(XY, XY.T) # linear kernel
+    # Gaussian kernel:
+    squared_distance_matrix = pairwise_distances(XY, metric='sqeuclidean')
+    sigma2 = np.median(squared_distance_matrix)
+    K = exp(- squared_distance_matrix / sigma2)
 
     mmd2u = MMD2u(K, m, n)
 
