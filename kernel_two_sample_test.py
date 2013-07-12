@@ -1,6 +1,7 @@
 from __future__ import division
 import numpy as np
 from sys import stdout
+from sklearn.metrics import pairwise_kernels
 
 
 def MMD2u(K, m, n):
@@ -30,6 +31,31 @@ def compute_null_distribution(K, m, n, iterations, verbose=False):
     return mmd2u_null
 
 
+def kernel_two_sample_test(X, Y, kernel_function='rbf', iterations=10000, verbose=False, **kwargs):
+    """Compute MMD^2_u, its null distribution and the p-value of the
+    kernel two-sample test.
+
+    Note that extra parameters captured by **kwargs will be passed to
+    pairwise_kernels() as kernel parameters. E.g. if
+    kernel_two_sample_test(..., kernel_function='rbf', gamma=0.1),
+    then this will result in getting the kernel through
+    kernel_function(metric='rbf', gamma=0.1).
+    """
+    XY = np.vstack([X, Y])
+    K = pairwise_kernels(XY, metric=kernel_function, **kwargs)
+    mmd2u = MMD2u(K, m, n)
+    if verbose:
+        print "MMD^2_u =", mmd2u
+        print "Computing the null distribution."
+    
+    mmd2u_null = compute_null_distribution(K, m, n, iterations, verbose=verbose)
+    p_value = max(1.0/iterations, (mmd2u_null > mmd2u).sum() / float(iterations))
+    if verbose:
+        print "p-value ~=", p_value, "\t (resolution :", 1.0/iterations, ")"
+        
+    return mmd2u, mmd2u_null, p_value
+
+
 def compute_upper_B_10(p):
     """Compute a upper bound on the Bayes factor of H_1 versus H_0
     given a p-value 'p'.
@@ -51,7 +77,6 @@ def compute_lower_alpha(p):
 if __name__ == '__main__':
 
     import matplotlib.pyplot as plt
-    from sys import stdout
     from sklearn.metrics import pairwise_distances
 
     np.random.seed(0)
@@ -77,25 +102,14 @@ if __name__ == '__main__':
         plt.plot(X[:,0], X[:,1], 'bo')
         plt.plot(Y[:,0], Y[:,1], 'rx')
 
-    XY = np.vstack([X, Y])
-    # K = np.dot(XY, XY.T) # linear kernel
-    # Gaussian kernel:
-    squared_distance_matrix = pairwise_distances(XY, metric='sqeuclidean')
-    sigma2 = np.median(squared_distance_matrix)
-    K = exp(- squared_distance_matrix / sigma2)
-
-    mmd2u = MMD2u(K, m, n)
-
-    print "MMD^2_u =", mmd2u
-
-    print "Computing the null distribution."
-
-    mmd2u_null = compute_null_distribution(K, m, n, iterations)
+    sigma2 = np.median(pairwise_distances(np.vstack([X, Y]), metric='sqeuclidean'))
+    mmd2u, mmd2u_null, p_value = kernel_two_sample_test(X, Y, kernel_function='rbf', gamma=1.0/sigma2, verbose=True)
+    # mmd2u, mmd2u_null, p_value = kernel_two_sample_test(X, Y, kernel_function='linear', verbose=True)
 
     plt.figure()
     prob, bins, patches = plt.hist(mmd2u_null, bins=50, normed=True)
-    plt.plot(mmd2u, prob.max()/30, 'w*', markersize=24, markeredgecolor='k', markeredgewidth=2)
-
-    p_value = max(1.0/iterations, (mmd2u_null > mmd2u).sum() / float(iterations))
-
-    print "p-value ~=", p_value, "\t (resolution :", 1.0/iterations, ")"
+    plt.plot(mmd2u, prob.max()/30, 'w*', markersize=24, markeredgecolor='k', markeredgewidth=2, label="$MMD^2_u = %s$" % mmd2u)
+    plt.xlabel('$MMD^2_u$')
+    plt.ylabel('$p(MMD^2_u)$')
+    plt.legend(numpoints=1)
+    plt.title('$MMD^2_u$: null-distribution and observed value. $p$-value=%s' % p_value)
