@@ -41,6 +41,8 @@ def kernel_two_sample_test(X, Y, kernel_function='rbf', iterations=10000, verbos
     then this will result in getting the kernel through
     kernel_function(metric='rbf', gamma=0.1).
     """
+    m = len(X)
+    n = len(Y)
     XY = np.vstack([X, Y])
     K = pairwise_kernels(XY, metric=kernel_function, **kwargs)
     mmd2u = MMD2u(K, m, n)
