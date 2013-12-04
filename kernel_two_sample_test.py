@@ -22,13 +22,13 @@ def compute_null_distribution(K, m, n, iterations=10000, verbose=False, seed=Non
     mmd2u_null = np.zeros(iterations)
     for i in range(iterations):
         if verbose and (i % 1000) == 0:
-            print i,
+            print(i),
             stdout.flush()
         idx = np.random.permutation(m+n)
         K_i = K[idx, idx[:,None]]
         mmd2u_null[i] = MMD2u(K_i, m, n)
         
-    if verbose: print
+    if verbose: print()
     return mmd2u_null
 
 
@@ -48,13 +48,13 @@ def kernel_two_sample_test(X, Y, kernel_function='rbf', iterations=10000, verbos
     K = pairwise_kernels(XY, metric=kernel_function, **kwargs)
     mmd2u = MMD2u(K, m, n)
     if verbose:
-        print "MMD^2_u =", mmd2u
-        print "Computing the null distribution."
+        print("MMD^2_u = %s" % mmd2u)
+        print("Computing the null distribution.")
     
     mmd2u_null = compute_null_distribution(K, m, n, iterations, verbose=verbose)
     p_value = max(1.0/iterations, (mmd2u_null > mmd2u).sum() / float(iterations))
     if verbose:
-        print "p-value ~=", p_value, "\t (resolution :", 1.0/iterations, ")"
+        print("p-value ~= %s \t (resolution : %s)" % (p_value, 1.0/iterations))
         
     return mmd2u, mmd2u_null, p_value
 
