@@ -15,9 +15,10 @@ def MMD2u(K, m, n):
            2.0 / (m * n) * (Kxy.sum() - Kxy.diagonal().sum())
 
 
-def compute_null_distribution(K, m, n, iterations, verbose=False):
+def compute_null_distribution(K, m, n, iterations=10000, verbose=False, seed=None):
     """Compute the bootstrap null-distribution of MMD2u.
     """
+    np.random.seed(seed)
     mmd2u_null = np.zeros(iterations)
     for i in range(iterations):
         if verbose and (i % 1000) == 0:
