@@ -15,20 +15,20 @@ def MMD2u(K, m, n):
            2.0 / (m * n) * (Kxy.sum() - Kxy.diagonal().sum())
 
 
-def compute_null_distribution(K, m, n, iterations=10000, verbose=False, seed=None):
+def compute_null_distribution(K, m, n, iterations=10000, verbose=False, seed=None, marker_interval=1000):
     """Compute the bootstrap null-distribution of MMD2u.
     """
     np.random.seed(seed)
     mmd2u_null = np.zeros(iterations)
     for i in range(iterations):
-        if verbose and (i % 1000) == 0:
+        if verbose and (i % marker_interval) == 0:
             print(i),
             stdout.flush()
         idx = np.random.permutation(m+n)
         K_i = K[idx, idx[:,None]]
         mmd2u_null[i] = MMD2u(K_i, m, n)
         
-    if verbose: print()
+    if verbose: print("")
     return mmd2u_null
 
 
@@ -105,7 +105,7 @@ if __name__ == '__main__':
         plt.plot(X[:,0], X[:,1], 'bo')
         plt.plot(Y[:,0], Y[:,1], 'rx')
 
-    sigma2 = np.median(pairwise_distances(np.vstack([X, Y]), metric='sqeuclidean'))
+    sigma2 = np.median(pairwise_distances(np.vstack([X, Y]), metric='euclidean'))**2
     mmd2u, mmd2u_null, p_value = kernel_two_sample_test(X, Y, kernel_function='rbf', gamma=1.0/sigma2, verbose=True)
     # mmd2u, mmd2u_null, p_value = kernel_two_sample_test(X, Y, kernel_function='linear', verbose=True)
 
