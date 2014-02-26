@@ -105,7 +105,7 @@ if __name__ == '__main__':
         plt.plot(X[:,0], X[:,1], 'bo')
         plt.plot(Y[:,0], Y[:,1], 'rx')
 
-    sigma2 = np.median(pairwise_distances(np.vstack([X, Y]), metric='euclidean'))**2
+    sigma2 = np.median(pairwise_distances(X, Y, metric='euclidean'))**2
     mmd2u, mmd2u_null, p_value = kernel_two_sample_test(X, Y, kernel_function='rbf', gamma=1.0/sigma2, verbose=True)
     # mmd2u, mmd2u_null, p_value = kernel_two_sample_test(X, Y, kernel_function='linear', verbose=True)
 
