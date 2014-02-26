@@ -12,7 +12,7 @@ def MMD2u(K, m, n):
     Kxy = K[:m, m:]
     return 1.0 / (m * (m - 1.0)) * (Kx.sum() - Kx.diagonal().sum()) + \
            1.0 / (n * (n - 1.0)) * (Ky.sum() - Ky.diagonal().sum()) - \
-           2.0 / (m * n) * (Kxy.sum() - Kxy.diagonal().sum())
+           2.0 / (m * n) * Kxy.sum()
 
 
 def compute_null_distribution(K, m, n, iterations=10000, verbose=False, seed=None, marker_interval=1000):
