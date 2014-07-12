@@ -32,6 +32,21 @@ def compute_null_distribution(K, m, n, iterations=10000, verbose=False, seed=Non
     return mmd2u_null
 
 
+def compute_null_distribution_given_permutations(K, m, n, permutation, iterations=10000):
+    """Compute the bootstrap null-distribution of MMD2u given
+    predefined permutations.
+
+    Note:: verbosity is removed to improve speed.
+    """
+    mmd2u_null = np.zeros(iterations)
+    for i in range(iterations):
+        idx = permutation[i]
+        K_i = K[idx, idx[:,None]]
+        mmd2u_null[i] = MMD2u(K_i, m, n)
+        
+    return mmd2u_null
+
+
 def kernel_two_sample_test(X, Y, kernel_function='rbf', iterations=10000, verbose=False, **kwargs):
     """Compute MMD^2_u, its null distribution and the p-value of the
     kernel two-sample test.
