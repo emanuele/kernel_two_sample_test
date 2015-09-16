@@ -16,16 +16,20 @@ def MMD2u(K, m, n):
 
 
 def compute_null_distribution(K, m, n, iterations=10000, verbose=False,
-                              seed=None, marker_interval=1000):
+                              random_state=None, marker_interval=1000):
     """Compute the bootstrap null-distribution of MMD2u.
     """
-    np.random.seed(seed)
+    if type(random_state) == type(np.random.RandomState()):
+        rng = random_state
+    else:
+        rng = np.random.RandomState(random_state)
+
     mmd2u_null = np.zeros(iterations)
     for i in range(iterations):
         if verbose and (i % marker_interval) == 0:
             print(i),
             stdout.flush()
-        idx = np.random.permutation(m+n)
+        idx = rng.permutation(m+n)
         K_i = K[idx, idx[:, None]]
         mmd2u_null[i] = MMD2u(K_i, m, n)
 
