@@ -40,18 +40,21 @@ def compute_null_distribution(K, m, n, iterations=10000, verbose=False,
 
 
 def compute_null_distribution_given_permutations(K, m, n, permutation,
-                                                 iterations=10000):
+                                                 iterations=None):
     """Compute the bootstrap null-distribution of MMD2u given
     predefined permutations.
 
     Note:: verbosity is removed to improve speed.
     """
+    if iterations is None:
+        iterations = len(permutation)
+
     mmd2u_null = np.zeros(iterations)
     for i in range(iterations):
         idx = permutation[i]
         K_i = K[idx, idx[:, None]]
         mmd2u_null[i] = MMD2u(K_i, m, n)
-        
+
     return mmd2u_null
 
 
