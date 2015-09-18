@@ -56,7 +56,7 @@ def compute_null_distribution_given_permutations(K, m, n, permutation,
 
 
 def kernel_two_sample_test(X, Y, kernel_function='rbf', iterations=10000,
-                           verbose=False, **kwargs):
+                           verbose=False, random_state=None, **kwargs):
     """Compute MMD^2_u, its null distribution and the p-value of the
     kernel two-sample test.
 
@@ -76,7 +76,8 @@ def kernel_two_sample_test(X, Y, kernel_function='rbf', iterations=10000,
         print("Computing the null distribution.")
 
     mmd2u_null = compute_null_distribution(K, m, n, iterations,
-                                           verbose=verbose)
+                                           verbose=verbose,
+                                           random_state=random_state)
     p_value = max(1.0/iterations, (mmd2u_null > mmd2u).sum() /
                   float(iterations))
     if verbose:
